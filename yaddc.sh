@@ -1,6 +1,6 @@
 #!/bin/bash
 
-UA="Simple No-IP Update/0.2 thg@paulseward.com"
+UA="YADDC Update/0.2 thg@paulseward.com"
 
 log ()
 {
@@ -34,7 +34,9 @@ OPTIONS:
 	-v	Verbose
 
 User Agent: $UA
-Fork from https://github.com/paulseward/ddclient-simple
+
+"Yet Another Dynamic DNS Client"
+Fork from https://github.com/paulseward/yaddc
 
 EOF
 }
