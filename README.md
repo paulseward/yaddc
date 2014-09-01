@@ -1,5 +1,7 @@
-ddclient.sh
-===========
+yaddc.sh
+========
+
+"Yet Another Dynamic DNS Client"
 
 A simple, but flexible no-ip.com compatible dynamic dns client, written in bash.
 
