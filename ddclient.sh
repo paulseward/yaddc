@@ -2,6 +2,11 @@
 
 UA="Simple No-IP Update/0.2 thg@paulseward.com"
 
+log ()
+{
+  echo -e "$(date --rfc-3339=ns)\t$1" >> $LOG
+}
+
 verbose ()
 {
 if [[ -z $VERBOSE ]]
@@ -95,7 +100,7 @@ then
   then
     verbose "curl returned: $IP_RV"
     verbose "Failed to retrieve IP, exiting"
-    echo -e "$(date --rfc-3339=ns)\tUnable to retrieve IP address from $IP_URL" >> $LOG
+    log "Unable to retrieve IP address from $IP_URL"
     exit 1
   fi
 fi
@@ -106,7 +111,7 @@ then
 else
   verbose "Curl returned: $IP_RV"
   verbose "Failed to retrieve IP, exiting"
-  echo -e "$(date --rfc-3339=ns)\tUnable to retrieve IP address from $IP_URL" >> $LOG
+  log "Unable to retrieve IP address from $IP_URL"
   exit 1
 fi
 
@@ -136,10 +141,10 @@ ANSWER=$(curl -A "$UA" --max-time 5 -s --user $USERNAME:$PASSWORD  "$UPDATE_URL"
 
 if [[ $ANSWER =~ Error ]] ; then
   verbose "Error encountered: $ANSWER"
-  echo -e "$(date --rfc-3339=ns)\tTemporary error" >> $LOG
+  log "Temporary error"
 else
   verbose "Update successful: $ANSWER"
-  echo -e "$(date --rfc-3339=ns)\t$OLDIP\t$IP\t$ANSWER" >> $LOG
+  log "$OLDIP\t$IP\t$ANSWER"
   echo $IP > $TMP
 fi
 
