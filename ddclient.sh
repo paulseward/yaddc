@@ -4,7 +4,7 @@ UA="Simple No-IP Update/0.2 thg@paulseward.com"
 
 log ()
 {
-  echo -e "$(date --rfc-3339=ns)\t$1" >> $LOG
+  echo -e "$(date +'%Y-%m-%d %H:%M:%S %Z')\t$1" >> $LOG
 }
 
 verbose ()
