@@ -28,7 +28,8 @@ OPTIONS:
 	-l	Logfile to write to, default is /var/log/ip.log
 	-v	Verbose
 
-$UA
+User Agent: $UA
+Fork from https://github.com/paulseward/ddclient-simple
 
 EOF
 }
