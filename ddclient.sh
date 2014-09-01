@@ -85,15 +85,31 @@ fi
 
 # Grab the IP
 verbose "Attempting to retrieve IP from $IP_URL"
-IP=$(curl -L --max-time 10 -s $IP_URL)
+IP_RV=$(curl -w "http_code:%{http_code}" -L --max-time 10 -s $IP_URL)
 
-# TODO - check http return code from curl request
+# Check the http return_code to make sure we actually got something
+if [[ $IP_RV =~ http_code:(.*)$ ]]
+then
+  if [[ ${BASH_REMATCH[1]} != 200 ]]
+  then
+    verbose "curl returned: $IP_RV"
+    verbose "Failed to retrieve IP, exiting"
+    echo -e "$(date --rfc-3339=ns)\tUnable to retrieve IP address from $IP_URL" >> $LOG
+    exit 1
+  fi
+fi
 
-if [ "$IP" == "" ] ; then
+if [[ $IP_RV =~ ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}) ]]
+then
+  IP=${BASH_REMATCH[1]}
+else
+  verbose "Curl returned: $IP_RV"
   verbose "Failed to retrieve IP, exiting"
   echo -e "$(date --rfc-3339=ns)\tUnable to retrieve IP address from $IP_URL" >> $LOG
   exit 1
 fi
+
+# Write it to the $TMP file if the $TMP file is missing
 if [ ! -f  $TMP ] ; then
    echo "" > $TMP
 fi
