@@ -100,9 +100,13 @@ then
   then
     verbose "curl returned: $IP_RV"
     verbose "Failed to retrieve IP, exiting"
-    log "Unable to retrieve IP address from $IP_URL"
+    log "Error: Unable to retrieve IP address from $IP_URL"
     exit 1
   fi
+else
+  verbose "curl failed to return an http_code: $IP_RV"
+  log "Error: Unable to retrieve IP address from $IP_RV"
+  exit 1
 fi
 
 if [[ $IP_RV =~ ([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}) ]]
@@ -111,40 +115,48 @@ then
 else
   verbose "Curl returned: $IP_RV"
   verbose "Failed to retrieve IP, exiting"
-  log "Unable to retrieve IP address from $IP_URL"
+  log "Error: Unable to retrieve IP address from $IP_URL"
   exit 1
 fi
 
-# Write it to the $TMP file if the $TMP file is missing
+# Recreate the $TMP file if it's missing
 if [ ! -f  $TMP ] ; then
-   echo "" > $TMP
+   echo "unknown" > $TMP
 fi
 
 verbose "Current IP: $IP"
 
 # Grab the last known IP
 OLDIP=$(cat $TMP)
+
 verbose "Old IP: $OLDIP"
 if [ "$IP" == "$OLDIP" ] ; then
    verbose "No change, exiting"
    exit 0
 fi
 
-# If we get here, our IP has changed
-
-# Try to update it
+# Try to update to the new IP
 UPDATE_URL="$DNS_URL?hostname=$DOMAIN&myip=$IP"
 
 verbose "Attempting to update $DOMAIN to point to $IP"
 verbose "Using: $UPDATE_URL"
-ANSWER=$(curl -A "$UA" --max-time 5 -s --user $USERNAME:$PASSWORD  "$UPDATE_URL")
+DNS_RV=$(curl -w '\n%{http_code}' -A "$UA" --max-time 5 -s --user $USERNAME:$PASSWORD  "$UPDATE_URL")
 
-if [[ $ANSWER =~ Error ]] ; then
-  verbose "Error encountered: $ANSWER"
-  log "Temporary error"
+# Parse the results.  "head -n -1" returns everything apart from the last line of the curl output
+RESULT=$(echo "$DNS_RV" | head -n -1)
+RETCODE=$(echo "$DNS_RV" | tail -n1)
+
+if [[ $RETCODE != 200 ]]
+then
+  verbose "Failed to update IP, exiting"
+  log "Error: Unable to contact update server via $UPDATE_URL : $DNS_RV"
+  exit 1
 else
-  verbose "Update successful: $ANSWER"
-  log "$OLDIP\t$IP\t$ANSWER"
+  # Update was successful
+  verbose "Update successful: $DNS_RV"
+  log "$OLDIP\t$IP\t$RESULT"
   echo $IP > $TMP
 fi
+
+exit 0
 
