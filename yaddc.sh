@@ -9,7 +9,7 @@ log ()
 
 verbose ()
 {
-if [[ -z $VERBOSE ]]
+if [[ -n $VERBOSE ]]
 then
   echo $1;
 fi
@@ -44,6 +44,7 @@ EOF
 USERNAME=
 PASSWORD=
 DOMAIN=
+VERBOSE=
 IP_URL=http://icanhazip.com
 DNS_URL=http://dynupdate.no-ip.com/nic/update
 LOG=/var/log/ip.log
@@ -75,7 +76,7 @@ do
              LOG=$OPTARG
              ;;
          v)
-             verbose=1
+             VERBOSE=1
              ;;
          ?)
              usage
